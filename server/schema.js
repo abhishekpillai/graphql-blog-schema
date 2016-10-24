@@ -31,8 +31,13 @@ const Query = new GraphQLObjectType({
   fields: {
     authors: {
       type: new GraphQLList(Author),
-      resolve: function() {
-        return db.authors.find().toArray();
+      resolve: function(rootValue, args, info) {
+        let fields = {};
+        let fieldASTs = info.fieldASTs;
+        fieldASTs[0].selectionSet.selections.map(function(selection) {
+          fields[selection.name.value] = 1;
+        });
+        return db.authors.find({}, fields).toArray();
       }
     }
   }
